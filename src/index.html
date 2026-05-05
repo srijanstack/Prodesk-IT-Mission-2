@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body>
+    <nav class="h-20 border-b font-semibold text-3xl flex pl-5 items-end pb-2">
+        <h1>Expense Tracker</h1>
+    </nav>
+    <main class="flex p-4">
+        <div class=" font-semibold border h-110 w-1/4 rounded-xl flex flex-col p-6 gap-8">
+            <h1 class=" text-xl">Inputs:</h1>
+            <div class="flex gap-1 flex-col ">
+                <label for="salary">Your Salary:</label>
+                <input class="h-8 w-50 border rounded-xl p-2 mb-2" type="number" id="salary"
+                    placeholder="Enter your salary:">
+                <button
+                    class=" w-40 h-10 rounded-xl bg-yellow-400 text-white cursor-pointer hover:scale-105 transition duration-200 active:scale-95"
+                    id="salaryBtn">Confirm
+                    Salary</button>
+            </div>
+            <div class="flex gap-1 flex-col">
+                <label for="expenseName">Expense Name:</label>
+                <input class="h-8 w-50 border rounded-xl p-2 mb-2" type="text" id="expenseName"
+                    placeholder="Enter your expense:">
+                <label for="expenseValue">Expense Value</label>
+                <input class="h-8 w-50 border rounded-xl p-2 mb-2" type="number" id="expenseValue"
+                    placeholder="Enter your expense:">
+                <button
+                    class=" w-40 h-10 rounded-xl bg-red-500 text-white cursor-pointer  hover:scale-105 transition duration-200 active:scale-95"
+                    id="expBtn">+
+                    Expense</button>
+            </div>
+        </div>
+    </main>
+    <script src="app.js"></script>
+</body>
+
+</html>
