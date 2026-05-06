@@ -6,37 +6,25 @@ const expenseNameInput = document.getElementById("expenseName");
 const expenseValueInput = document.getElementById("expenseValue");
 
 const expList = document.getElementById("expList");
-const bar = document.getElementById("topExpBar")
+const bar = document.getElementById("topExpBar");
 
 const bal = document.getElementById("balance");
 const totExp = document.getElementById("totExp");
 const sal = document.getElementById("sal");
 
+const fromCurr = document.getElementById("fromCurrency");
+const toCurr = document.getElementById("toCurrency");
+
+let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
 let salary = JSON.parse(localStorage.getItem("salary")) || null;
 salaryInput.value = Number(salary);
-let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
 
 
 salaryBtn.addEventListener('click', () => {
-    if(Number(salaryInput.value) === 0) return;
-    if(Number(salaryInput.value) < totalExpense()) alert("Your expenses exceeds your salary.")
+    if (Number(salaryInput.value) === 0) return;
+    if (Number(salaryInput.value) < totalExpense()) alert("Your expenses exceeds your salary.")
     updateSalary();
 })
-
-
-function updateSalary() {
-    salary = Number(salaryInput.value);
-    localStorage.setItem("salary", JSON.stringify(salary));
-    sal.innerText = salary.toLocaleString('en-IN');
-    updateExpenseList();
-}
-
-function balance() {
-    const balance = salary - totalExpense();
-    bal.innerText = balance.toLocaleString('en-in');
-    return balance;
-}
-
 
 expenseButton.addEventListener('click', () => {
     const expName = expenseNameInput.value;
@@ -57,10 +45,33 @@ expenseButton.addEventListener('click', () => {
     updateExpenseList();
 })
 
+
+function updateSalary() {
+    salary = Number(salaryInput.value);
+    localStorage.setItem("salary", JSON.stringify(salary));
+    sal.innerText = salary.toLocaleString('en-IN');
+    updateExpenseList();
+}
+
+function balance() {
+    const balance = salary - totalExpense();
+    if (balance < (salary / 10)) {
+        bal.classList.add("text-red-500");
+        bal.classList.remove("text-yellow-500");
+    }
+    else {
+        bal.classList.add("text-yellow-500");
+        bal.classList.remove("text-red-500");
+    }
+    bal.innerText = balance.toLocaleString('en-in');
+    return balance;
+}
+
+
 function updateExpenseList() {
 
     if (expenses.length === 0) {
-        expList.innerHTML = `  <h1 class="font-semibold text-2xl text-yellow-500">No expenses. You are doing good.</h1>`
+        expList.innerHTML = `  <h1 class="font-semibold text-2xl text-green-500">No expenses. You are doing good.</h1>`
         bar.style.display = `none`
         totalExpense();
         balance();
@@ -111,7 +122,7 @@ let chart;
 
 function renderChart() {
     const totalExpenses = totalExpense();
-    const remaining = Math.max(balance(), 0);
+    const remaining = Math.max(salary - totalExpenses, 0);
 
     const canvas = document.getElementById("expenseChart");
     const ctx = canvas.getContext("2d");
@@ -133,9 +144,65 @@ function renderChart() {
     });
 }
 
+function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("Expense Report", 90, 20);
+
+    let y = 30;
+
+    expenses.forEach((exp, i) => {
+        doc.text(
+            `${i + 1}. ${exp.name} - ${exp.value}`,
+            20,
+            y
+        );
+        y += 10;
+    });
+
+    const total = totalExpense();
+    const remaining = balance();
+
+    doc.text(`Total Expense: ${total}`, 20, y + 10);
+    doc.text(`Remaining: ${remaining}`, 20, y + 20);
+    doc.save("expenses.pdf");
+}
+
+
+async function getCurrencies() {
+    try {
+        const data = await fetch(`https://api.frankfurter.dev/v2/currencies`);
+        const currencies = await data.json();
+        fromCurr.innerHTML = currencies.map((curr) => curr.iso_code === "INR" ? `<option selected value="${curr.iso_code}">${curr.name}</option>` : `<option value="${curr.iso_code}">${curr.name}</option>`)
+        toCurr.innerHTML = currencies.map((curr) => curr.iso_code === "INR" ? `<option selected value="${curr.iso_code}">${curr.name}</option>` : `<option value="${curr.iso_code}">${curr.name}</option>`)
+    } catch (err) {
+        console.error(err)
+    }
+}
+
+
+async function convert() {
+    const base = fromCurr.value;
+    const quote = toCurr.value;
+    if (base === quote) {
+        alert("Cannot convert to same currency");
+        return
+    }
+    try {
+        const data = await fetch(`https://api.frankfurter.dev/v2/rate/${base}/${quote}`);
+        const conversion = await data.json();
+        salary = (salary * conversion.rate).toFixed(2);
+    } catch (err) {
+        console.error(err)
+    }
+}
+
 updateSalary();
 updateExpenseList();
 renderChart();
+getCurrencies();
 
 
 
