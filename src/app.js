@@ -18,21 +18,23 @@ let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
 
 
 salaryBtn.addEventListener('click', () => {
+    if(Number(salaryInput.value) === 0) return;
+    if(Number(salaryInput.value) < totalExpense()) alert("Your expenses exceeds your salary.")
     updateSalary();
-})    
+})
 
 
 function updateSalary() {
-    salary = Number(salaryInput.value); 
+    salary = Number(salaryInput.value);
     localStorage.setItem("salary", JSON.stringify(salary));
     sal.innerText = salary.toLocaleString('en-IN');
-
-    updateExpenseList(); 
+    updateExpenseList();
 }
 
 function balance() {
     const balance = salary - totalExpense();
     bal.innerText = balance.toLocaleString('en-in');
+    return balance;
 }
 
 
@@ -42,6 +44,11 @@ expenseButton.addEventListener('click', () => {
 
     if (!expValue || !expName) {
         return alert("Enter Expense")
+    }
+
+    if (expValue > balance()) {
+        const isConfirmed = confirm("You dont have enough budget. Sure you want to continue?");
+        if (!isConfirmed) return;
     }
 
     expenses = [...expenses, { name: expName, value: Number(expValue) }]
@@ -57,6 +64,7 @@ function updateExpenseList() {
         bar.style.display = `none`
         totalExpense();
         balance();
+        renderChart();
         return
     }
 
@@ -81,6 +89,7 @@ function updateExpenseList() {
 
     totalExpense();
     balance();
+    renderChart();
 }
 
 function removeExpense(i) {
@@ -97,8 +106,36 @@ function totalExpense() {
     return totalExpenses;
 }
 
+
+let chart;
+
+function renderChart() {
+    const totalExpenses = totalExpense();
+    const remaining = Math.max(balance(), 0);
+
+    const canvas = document.getElementById("expenseChart");
+    const ctx = canvas.getContext("2d");
+
+    if (chart) {
+        chart.destroy();
+    }
+
+    chart = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            labels: ["Spent", "Remaining"],
+            datasets: [{
+                data: [totalExpenses, remaining],
+                backgroundColor: ["#ef4444", "#22c55e"]
+            }]
+        },
+
+    });
+}
+
 updateSalary();
 updateExpenseList();
+renderChart();
 
 
 
