@@ -15,9 +15,13 @@ const sal = document.getElementById("sal");
 const fromCurr = document.getElementById("fromCurrency");
 const toCurr = document.getElementById("toCurrency");
 
+const currencyInd = document.getElementsByClassName("curr")
+
 let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-let salary = JSON.parse(localStorage.getItem("salary")) || null;
-salaryInput.value = Number(salary);
+let salaryObj = JSON.parse(localStorage.getItem("salary")) || null;
+let salary = salaryObj ?  Number(salaryObj.amount) : 0;
+sal.innerText = salary.toLocaleString();
+currencyInd.innerText = salaryObj.currency;
 
 
 salaryBtn.addEventListener('click', () => {
@@ -47,10 +51,12 @@ expenseButton.addEventListener('click', () => {
 
 
 function updateSalary() {
-    salary = Number(salaryInput.value);
-    localStorage.setItem("salary", JSON.stringify(salary));
-    sal.innerText = salary.toLocaleString('en-IN');
-    updateExpenseList();
+    const salaryObj = { currency: fromCurr.value, amount: Number(salaryInput.value) }
+    localStorage.setItem("salary", JSON.stringify(salaryObj));
+    salary = salaryObj.amount;
+    sal.innerText = salary.toLocaleString();
+    balance();
+    renderChart();
 }
 
 function balance() {
@@ -63,7 +69,7 @@ function balance() {
         bal.classList.add("text-yellow-500");
         bal.classList.remove("text-red-500");
     }
-    bal.innerText = balance.toLocaleString('en-in');
+    bal.innerText = balance.toLocaleString();
     return balance;
 }
 
@@ -175,8 +181,8 @@ async function getCurrencies() {
     try {
         const data = await fetch(`https://api.frankfurter.dev/v2/currencies`);
         const currencies = await data.json();
-        fromCurr.innerHTML = currencies.map((curr) => curr.iso_code === "INR" ? `<option selected value="${curr.iso_code}">${curr.name}</option>` : `<option value="${curr.iso_code}">${curr.name}</option>`)
-        toCurr.innerHTML = currencies.map((curr) => curr.iso_code === "INR" ? `<option selected value="${curr.iso_code}">${curr.name}</option>` : `<option value="${curr.iso_code}">${curr.name}</option>`)
+        fromCurr.innerHTML = currencies.map((curr) => curr.iso_code === (salaryObj?.currency || "INR") ? `<option selected value="${curr.iso_code}">${curr.name}</option>` : `<option value="${curr.iso_code}">${curr.name}</option>`).join("");
+        toCurr.innerHTML = currencies.map((curr) => curr.iso_code === (salaryObj?.currency || "INR") ? `<option selected value="${curr.iso_code}">${curr.name}</option>` : `<option value="${curr.iso_code}">${curr.name}</option>`).join("");
     } catch (err) {
         console.error(err)
     }
@@ -193,13 +199,29 @@ async function convert() {
     try {
         const data = await fetch(`https://api.frankfurter.dev/v2/rate/${base}/${quote}`);
         const conversion = await data.json();
-        salary = (salary * conversion.rate).toFixed(2);
+        getConversion(conversion.rate, quote);
     } catch (err) {
         console.error(err)
     }
 }
 
-updateSalary();
+function getConversion(rate, currency) {
+    fromCurr.value = currency;
+    toCurr.value = "INR";
+    salary = Number((salary * rate).toFixed(2));
+    salaryObj = { currency: currency, amount: salary };
+    sal.innerText = salary.toLocaleString();
+    expenses = expenses.map((exp) => ({
+        ...exp,
+        value: Number((exp.value * rate).toFixed(2))
+    }));
+    localStorage.setItem("salary", JSON.stringify(salaryObj))
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+    updateExpenseList();
+}
+
+
+
 updateExpenseList();
 renderChart();
 getCurrencies();
