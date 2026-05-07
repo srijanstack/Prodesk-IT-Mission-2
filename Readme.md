@@ -19,6 +19,8 @@ This is a part of assignment from Prodesk IT internship.
 
 
 ## Project Structure
+
+```tree
 MISSION-2/
 │
 ├── src/
