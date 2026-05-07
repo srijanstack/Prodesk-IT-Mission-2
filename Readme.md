@@ -14,8 +14,8 @@ This is a part of assignment from Prodesk IT internship.
 
 ## Preview
 
-![UI Preview 1](preview/Screenshot%202026-05-07%20203925.png)
-![UI Preview 2](preview/Screenshot%202026-05-07%20204052.png)
+![UI Preview 1](Preview/Screenshot%202026-05-07%20203925.png)
+![UI Preview 2](Preview/Screenshot%202026-05-07%20204052.png)
 
 
 ## Project Structure
