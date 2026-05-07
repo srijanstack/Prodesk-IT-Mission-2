@@ -15,24 +15,22 @@ const sal = document.getElementById("sal");
 const fromCurr = document.getElementById("fromCurrency");
 const toCurr = document.getElementById("toCurrency");
 
-const currencyInd = document.getElementsByClassName("curr")
-
 let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
 let salaryObj = JSON.parse(localStorage.getItem("salary")) || null;
 let salary = salaryObj ?  Number(salaryObj.amount) : 0;
-sal.innerText = salary.toLocaleString();
-currencyInd.innerText = salaryObj.currency;
+sal.innerText = `${salaryObj?.currency || "INR"} ${salary.toLocaleString()}`;
 
 
 salaryBtn.addEventListener('click', () => {
     if (Number(salaryInput.value) === 0) return;
     if (Number(salaryInput.value) < totalExpense()) alert("Your expenses exceeds your salary.")
+    salaryInput.value = "";
     updateSalary();
 })
 
 expenseButton.addEventListener('click', () => {
     const expName = expenseNameInput.value;
-    const expValue = expenseValueInput.value;
+    const expValue = expenseNameInput.value;
 
     if (!expValue || !expName) {
         return alert("Enter Expense")
@@ -46,15 +44,18 @@ expenseButton.addEventListener('click', () => {
     expenses = [...expenses, { name: expName, value: Number(expValue) }]
     localStorage.setItem("expenses", JSON.stringify(expenses));
 
+    expenseNameInput.value = "";
+    expenseNameInput.value = "";
+
     updateExpenseList();
 })
 
 
 function updateSalary() {
-    const salaryObj = { currency: fromCurr.value, amount: Number(salaryInput.value) }
+    salaryObj = { currency: fromCurr.value, amount: Number(salaryInput.value) }
     localStorage.setItem("salary", JSON.stringify(salaryObj));
     salary = salaryObj.amount;
-    sal.innerText = salary.toLocaleString();
+    sal.innerText = `${salaryObj?.currency || "INR"} ${salary.toLocaleString()}`;
     balance();
     renderChart();
 }
@@ -69,7 +70,7 @@ function balance() {
         bal.classList.add("text-yellow-500");
         bal.classList.remove("text-red-500");
     }
-    bal.innerText = balance.toLocaleString();
+    bal.innerText = `${salaryObj?.currency || "INR"} ${balance.toLocaleString()}`;
     return balance;
 }
 
@@ -119,7 +120,7 @@ function totalExpense() {
     const totalExpenses = expenses.reduce((acc, curr) => {
         return acc + curr.value;
     }, 0);
-    totExp.innerText = totalExpenses.toLocaleString('en-In');
+    totExp.innerText = `${salaryObj?.currency || "INR"} ${totalExpenses.toLocaleString('en-In')}`;
     return totalExpenses;
 }
 
@@ -173,6 +174,7 @@ function generatePDF() {
 
     doc.text(`Total Expense: ${total}`, 20, y + 10);
     doc.text(`Remaining: ${remaining}`, 20, y + 20);
+    doc.text(`Currency: ${salaryObj.currency}`, 20 , y + 30);
     doc.save("expenses.pdf");
 }
 
@@ -210,7 +212,7 @@ function getConversion(rate, currency) {
     toCurr.value = "INR";
     salary = Number((salary * rate).toFixed(2));
     salaryObj = { currency: currency, amount: salary };
-    sal.innerText = salary.toLocaleString();
+    sal.innerText = `${salaryObj?.currency || "INR"} ${salary.toLocaleString()}`;
     expenses = expenses.map((exp) => ({
         ...exp,
         value: Number((exp.value * rate).toFixed(2))

@@ -24,13 +24,18 @@
                     placeholder="Enter your salary:">
                 <div class="flex flex-col items-start mb-1 gap-3">
                     <div class="flex gap-1">
-                        <h3>From:</h3>
+                        <label for="fromCurrency" >
+                            From:
+                        </label>
+
                         <select id="fromCurrency" class="w-70">
                         </select>
                     </div>
-                    <button class="border rounded-md p-1  px-3 cursor-pointer bg-gray-200 transition hover:scale-105 duration-200 active:scale-95" onclick="convert()">Convert</button>
+                    <button
+                        class="border rounded-md p-1  px-3 cursor-pointer bg-gray-200 transition hover:scale-105 duration-200 active:scale-95"
+                        onclick="convert()">Convert</button>
                     <div class="flex  gap-1">
-                        <h3>to:</h3>
+                        <label for="toCurrency">to:<label>
                         <span>
                             <select id="toCurrency" class="w-70">
                             </select>
@@ -59,18 +64,15 @@
             <div class="w-full border-b p-3 flex justify-around ">
                 <div>
                     <h1 class="font-semibold text-xl ">Your Salary:</h1>
-                    <span class="curr "></span>
-                    <span class="font-bold text-2xl text-green-500 ml-4" id="sal"></span>
+                    <span class="font-bold text-2xl text-green-500 " id="sal"></span>
                 </div>
                 <div>
                     <h1 class="font-semibold text-xl">Your Expenses:</h1>
-                    <span class="curr "></span>
-                    <span class="font-bold text-2xl text-red-500 ml-4" id="totExp"></span>
+                    <span class="font-bold text-2xl text-red-500 " id="totExp"></span>
                 </div>
                 <div>
                     <h1 class="font-semibold text-xl ">Remaining:</h1>
-                    <span class="curr "></span>
-                    <span class="font-bold text-2xl ml-4" id="balance"></span>
+                    <span class="font-bold text-2xl " id="balance"></span>
                 </div>
             </div>
             <div class="p-2">
