@@ -17,8 +17,8 @@ const toCurr = document.getElementById("toCurrency");
 
 let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
 let salaryObj = JSON.parse(localStorage.getItem("salary")) || null;
-let salary = salaryObj ?  Number(salaryObj.amount) : 0;
-sal.innerText = `${salaryObj?.currency || "INR"} ${salary.toLocaleString()}`;
+let salary = salaryObj ? Number(salaryObj.amount) : 0;
+sal.innerText = `${salaryObj?.currency || "INR"} ${salary.toLocaleString("en", { maximumFractionDigits: 2 })}`;
 
 //events
 salaryBtn.addEventListener('click', () => {
@@ -55,7 +55,7 @@ function updateSalary() {
     salaryObj = { currency: fromCurr.value, amount: Number(salaryInput.value) }
     localStorage.setItem("salary", JSON.stringify(salaryObj));
     salary = salaryObj.amount;
-    sal.innerText = `${salaryObj?.currency || "INR"} ${salary.toLocaleString()}`;
+    sal.innerText = `${salaryObj?.currency || "INR"} ${salary.toLocaleString("en", { maximumFractionDigits: 2 })}`;
     balance();
     renderChart();
 }
@@ -70,7 +70,7 @@ function balance() {
         bal.classList.add("text-yellow-500");
         bal.classList.remove("text-red-500");
     }
-    bal.innerText = `${salaryObj?.currency || "INR"} ${balance.toLocaleString()}`;
+    bal.innerText = `${salaryObj?.currency || "INR"} ${balance.toLocaleString("en", { maximumFractionDigits: 2 })}`;
     return balance;
 }
 
@@ -97,7 +97,7 @@ function updateExpenseList() {
                             ${exp.name}
                         </div>
                         <div class="border-b border-r  w-1/3 h-7 text-center">
-                            ${exp.value}
+                            ${exp.value.toFixed(0)}
                         </div>
                         <button class="border-b  border-r w-1/10 h-7 text-center text-red-500 font-semibold border-black cursor-pointer hover:scale-105 transition duration-100" onClick="removeExpense(${i})">
                             <i class="fa-solid fa-trash"></i>
@@ -121,7 +121,7 @@ function totalExpense() {
     const totalExpenses = expenses.reduce((acc, curr) => {
         return acc + curr.value;
     }, 0);
-    totExp.innerText = `${salaryObj?.currency || "INR"} ${totalExpenses.toLocaleString('en-In')}`;
+    totExp.innerText = `${salaryObj?.currency || "INR"} ${totalExpenses.toLocaleString("en", { maximumFractionDigits: 2 })}`;
     return totalExpenses;
 }
 
@@ -165,7 +165,7 @@ function generatePDF() {
 
     expenses.forEach((exp, i) => {
         doc.text(
-            `${i + 1}. ${exp.name} - ${exp.value}`,
+            `${i + 1}. ${exp.name} - ${exp.value.toFixed(2)}`,
             20,
             y
         );
@@ -175,9 +175,9 @@ function generatePDF() {
     const total = totalExpense();
     const remaining = balance();
 
-    doc.text(`Total Expense: ${total}`, 20, y + 10);
-    doc.text(`Remaining: ${remaining}`, 20, y + 20);
-    doc.text(`Currency: ${salaryObj.currency}`, 20 , y + 30);
+    doc.text(`Total Expense: ${total.toFixed(2)}`, 20, y + 10);
+    doc.text(`Remaining: ${remaining.toFixed(2)}`, 20, y + 20);
+    doc.text(`Currency: ${salaryObj.currency}`, 20, y + 30);
     doc.save("expenses.pdf");
 }
 
@@ -213,12 +213,12 @@ async function convert() {
 function getConversion(rate, currency) {
     fromCurr.value = currency;
     toCurr.value = "INR";
-    salary = Number((salary * rate).toFixed(2));
+    salary = Number(salary * rate);
     salaryObj = { currency: currency, amount: salary };
-    sal.innerText = `${salaryObj?.currency || "INR"} ${salary.toLocaleString()}`;
+    sal.innerText = `${salaryObj?.currency || "INR"} ${salary.toLocaleString("en", { maximumFractionDigits: 2 })}`;
     expenses = expenses.map((exp) => ({
         ...exp,
-        value: Number((exp.value * rate).toFixed(2))
+        value: Number(exp.value * rate)
     }));
     localStorage.setItem("salary", JSON.stringify(salaryObj))
     localStorage.setItem("expenses", JSON.stringify(expenses));
