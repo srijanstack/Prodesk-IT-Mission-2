@@ -20,17 +20,17 @@ let salaryObj = JSON.parse(localStorage.getItem("salary")) || null;
 let salary = salaryObj ?  Number(salaryObj.amount) : 0;
 sal.innerText = `${salaryObj?.currency || "INR"} ${salary.toLocaleString()}`;
 
-
+//events
 salaryBtn.addEventListener('click', () => {
     if (Number(salaryInput.value) === 0) return;
     if (Number(salaryInput.value) < totalExpense()) alert("Your expenses exceeds your salary.")
-    salaryInput.value = "";
     updateSalary();
+    salaryInput.value = "";
 })
 
 expenseButton.addEventListener('click', () => {
     const expName = expenseNameInput.value;
-    const expValue = expenseNameInput.value;
+    const expValue = expenseValueInput.value;
 
     if (!expValue || !expName) {
         return alert("Enter Expense")
@@ -45,12 +45,12 @@ expenseButton.addEventListener('click', () => {
     localStorage.setItem("expenses", JSON.stringify(expenses));
 
     expenseNameInput.value = "";
-    expenseNameInput.value = "";
+    expenseValueInput.value = "";
 
     updateExpenseList();
 })
 
-
+//UI and state
 function updateSalary() {
     salaryObj = { currency: fromCurr.value, amount: Number(salaryInput.value) }
     localStorage.setItem("salary", JSON.stringify(salaryObj));
@@ -110,6 +110,7 @@ function updateExpenseList() {
     renderChart();
 }
 
+//removing and counting logic
 function removeExpense(i) {
     expenses.splice(i, 1);
     localStorage.setItem("expenses", JSON.stringify(expenses));
@@ -125,6 +126,7 @@ function totalExpense() {
 }
 
 
+//chart
 let chart;
 
 function renderChart() {
@@ -151,6 +153,7 @@ function renderChart() {
     });
 }
 
+//pdf
 function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -178,7 +181,7 @@ function generatePDF() {
     doc.save("expenses.pdf");
 }
 
-
+//currencies and conversions
 async function getCurrencies() {
     try {
         const data = await fetch(`https://api.frankfurter.dev/v2/currencies`);
@@ -222,10 +225,7 @@ function getConversion(rate, currency) {
     updateExpenseList();
 }
 
-
-
 updateExpenseList();
-renderChart();
 getCurrencies();
 
 
